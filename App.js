@@ -1,13 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TextInput, ImageBackground, Image } from 'react-native';
+import { TextInput, ImageBackground, Image, Button } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import io from 'socket.io-client';
+
+let socket = null;
 
 export default function App() {
   useKeepAwake(); // remove later
   const [emailText, onChangeEmail] = React.useState("");
   const [passwordText, onChangePassword] = React.useState("");
+
+  const signIn = async () => {
+    const url = 'https://rainoapp.herokuapp.com/login'
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: emailText,
+        password: passwordText
+      })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      return alert(json.msg);
+    }
+    await AsyncStorage.setItem('@token', json.token);
+    await AsyncStorage.setItem('@tokenSelector', json.selector);
+    socket = io('https://rainoapp.herokuapp.com')
+    socket.on('connected', () => {
+      socket.emit('authenticate', {
+        selector: json.selector,
+        token: json.token
+      });
+    });
+    socket.on('authenticated', async () => {
+      alert('Authenticated');
+      socket.on('message', data => {
+        alert('message: ' + data.message);
+      });
+    
+      socket.on('channel messages', data => {
+       
+      });
+    });
+    socket.on('auth denied', () => {
+      alert('Could not sign in! Try again');
+    });
+  }
+
   return (
     <View>
       <ImageBackground
@@ -34,6 +78,7 @@ export default function App() {
             value={passwordText}
             style={styles.input}
           />
+          <Button title='Continue' onPress={signIn} />
         </View>
       </ImageBackground>
     </View>
