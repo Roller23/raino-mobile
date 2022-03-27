@@ -104,7 +104,7 @@ function Chat() {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Chat screen</Text>
       {
-        messages.map(m => <Text>{m.message}</Text>)
+        messages.map(m => <Text key={m.dbID}>{m.message}</Text>)
       }
     </View>
   );
