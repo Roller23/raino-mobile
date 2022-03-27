@@ -92,9 +92,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   inputsWrapper: {
-    color: 'white',
     width: '70%',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 100
   },
   input: {
     borderColor: 'black',
