@@ -5,11 +5,13 @@ import { useKeepAwake } from 'expo-keep-awake';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import io from 'socket.io-client';
 import Button from './components/Button'
+import { NavigationContainer, StackActions } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 let socket = null;
 
-export default function App() {
-  useKeepAwake(); // remove later
+function Login({navigation}) {
+  useKeepAwake();
   const [emailText, onChangeEmail] = React.useState("");
   const [passwordText, onChangePassword] = React.useState("");
 
@@ -39,13 +41,14 @@ export default function App() {
       });
     });
     socket.on('authenticated', async () => {
-      alert('Authenticated');
+      navigation.replace('Chat')
       socket.on('message', data => {
         alert('message: ' + data.message);
+        setMessages([...messages, data])
       });
     
       socket.on('channel messages', data => {
-       
+        setMessages(data.messages)
       });
     });
     socket.on('auth denied', () => {
@@ -87,6 +90,37 @@ export default function App() {
         </View>
       </ImageBackground>
     </View>
+  );
+}
+
+let messages, setMessages;
+
+function Chat() {
+  const [messagesXD, setMessagesXD] = React.useState([])
+  messages = messagesXD;
+  setMessages = setMessagesXD;
+  useKeepAwake();
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Chat screen</Text>
+      {
+        messages.map(m => <Text>{m.message}</Text>)
+      }
+    </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
+
+export default function App() {
+  const options = { headerShown: false };
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} options={options} />
+        <Stack.Screen name="Chat" component={Chat} options={options} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
