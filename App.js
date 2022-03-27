@@ -71,12 +71,16 @@ export default function App() {
             onChangeText={onChangeEmail}
             value={emailText}
             style={{...styles.input, marginBottom: 20}}
+            placeholder="Email"
+            placeholderTextColor="lightgray"
           />
           <TextInput
             secureTextEntry={true}
             onChangeText={onChangePassword}
             value={passwordText}
             style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="lightgray"
           />
           <Button title='Continue' onPress={signIn} />
         </View>
